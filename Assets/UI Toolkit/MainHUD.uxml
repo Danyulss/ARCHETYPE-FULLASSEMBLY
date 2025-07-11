@@ -1,0 +1,80 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:VisualElement name="main-container" class="main-hud">
+        
+        <!-- Top Status Bar -->
+        <ui:VisualElement name="top-bar" class="top-bar">
+            <ui:Label text="Archetype Neural Network Builder" class="title-label" />
+            
+            <ui:VisualElement name="status-indicators" class="status-container">
+                <ui:Label text="Backend: Connecting..." name="backend-status" class="status-label" />
+                <ui:Label text="GPU: Detecting..." name="gpu-status" class="status-label" />
+                <ui:Label text="FPS: --" name="fps-counter" class="status-label" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        
+        <!-- Main Content Area -->
+        <ui:VisualElement name="content-area" class="content-area">
+            
+            <!-- Left Panel - Tools -->
+            <ui:VisualElement name="left-panel" class="side-panel">
+                <ui:Label text="Layer Types" class="panel-header" />
+                <ui:ScrollView name="layer-palette" class="layer-palette">
+                    <ui:Button text="Dense Layer" name="dense-layer-btn" class="layer-button" />
+                    <ui:Button text="Convolutional" name="conv-layer-btn" class="layer-button" />
+                    <ui:Button text="LSTM" name="lstm-layer-btn" class="layer-button" />
+                    <ui:Button text="Dropout" name="dropout-layer-btn" class="layer-button" />
+                </ui:ScrollView>
+                
+                <ui:VisualElement name="plugin-section" class="plugin-section">
+                    <ui:Label text="Plugins" class="panel-header" />
+                    <ui:ScrollView name="plugin-list" class="plugin-list">
+                        <!-- Plugin items will be populated dynamically -->
+                    </ui:ScrollView>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            
+            <!-- Center - 3D Viewport -->
+            <ui:VisualElement name="viewport-container" class="viewport-container">
+                <!-- 3D scene renders here, UI overlays go on top -->
+                <ui:VisualElement name="viewport-overlay" class="viewport-overlay">
+                    <ui:Label text="3D Neural Network Visualization" class="viewport-label" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            
+            <!-- Right Panel - Properties -->
+            <ui:VisualElement name="right-panel" class="side-panel">
+                <ui:Label text="Layer Properties" class="panel-header" />
+                <ui:ScrollView name="properties-panel" class="properties-panel">
+                    <ui:IntegerField label="Neurons" name="neuron-count" value="128" />
+                    <ui:DropdownField label="Activation" name="activation-dropdown" />
+                    <ui:Slider label="Learning Rate" name="learning-rate-slider" 
+                              low-value="0.0001" high-value="0.1" value="0.001" />
+                    <ui:Toggle label="Trainable" name="trainable-toggle" value="true" />
+                </ui:ScrollView>
+                
+                <ui:VisualElement name="gpu-info-section" class="info-section">
+                    <ui:Label text="GPU Information" class="panel-header" />
+                    <ui:Label text="Name: --" name="gpu-name" class="info-label" />
+                    <ui:Label text="Memory: --" name="gpu-memory" class="info-label" />
+                    <ui:Label text="Utilization: --" name="gpu-utilization" class="info-label" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        
+        <!-- Bottom Panel - Training Controls -->
+        <ui:VisualElement name="bottom-panel" class="bottom-panel">
+            <ui:VisualElement name="training-controls" class="training-controls">
+                <ui:Button text="Start Training" name="start-training-btn" class="primary-button" />
+                <ui:Button text="Stop Training" name="stop-training-btn" class="secondary-button" />
+                <ui:Button text="Pause Training" name="pause-training-btn" class="secondary-button" />
+            </ui:VisualElement>
+            
+            <ui:VisualElement name="progress-section" class="progress-section">
+                <ui:Label text="Training Progress" class="progress-label" />
+                <ui:ProgressBar name="training-progress" value="0" class="training-progress-bar" />
+                <ui:Label text="Epoch: 0/0 | Loss: -- | Accuracy: --" name="training-stats" class="training-stats" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        
+    </ui:VisualElement>
+</ui:UXML>

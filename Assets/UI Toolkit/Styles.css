@@ -1,0 +1,235 @@
+.main-hud {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(20, 20, 25, 0.95);
+    flex-direction: column;
+    font-size: 14px;
+}
+
+/* Top Bar */
+.top-bar {
+    height: 50px;
+    background-color: rgba(15, 15, 20, 0.9);
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    border-bottom-width: 2px;
+    border-bottom-color: rgba(80, 150, 255, 0.3);
+}
+
+.title-label {
+    font-size: 18px;
+    font-weight: bold;
+    color: rgb(220, 220, 255);
+}
+
+.status-container {
+    flex-direction: row;
+    align-items: center;
+}
+
+.status-label {
+    margin-left: 20px;
+    font-size: 12px;
+    color: rgb(180, 180, 200);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Content Area */
+.content-area {
+    flex: 1;
+    flex-direction: row;
+}
+
+/* Side Panels */
+.side-panel {
+    width: 280px;
+    background-color: rgba(25, 25, 35, 0.9);
+    border-width: 1px;
+    border-color: rgba(80, 80, 100, 0.3);
+    padding: 15px;
+    flex-direction: column;
+}
+
+.panel-header {
+    font-size: 16px;
+    font-weight: bold;
+    color: rgb(200, 200, 255);
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(80, 150, 255, 0.3);
+}
+
+/* Layer Palette */
+.layer-palette {
+    max-height: 300px;
+    margin-bottom: 20px;
+}
+
+.layer-button {
+    width: 100%;
+    height: 35px;
+    margin-bottom: 8px;
+    background-color: rgba(70, 130, 200, 0.8);
+    border-width: 0;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    transition-duration: 0.2s;
+}
+
+.layer-button:hover {
+    background-color: rgba(90, 150, 220, 0.9);
+    scale: 1.02;
+}
+
+.layer-button:active {
+    background-color: rgba(60, 120, 180, 1.0);
+    scale: 0.98;
+}
+
+/* Plugin Section */
+.plugin-section {
+    margin-top: 20px;
+    flex: 1;
+}
+
+.plugin-list {
+    max-height: 200px;
+}
+
+/* Viewport */
+.viewport-container {
+    flex: 1;
+    background-color: rgba(10, 10, 15, 0.8);
+    position: relative;
+}
+
+.viewport-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.viewport-label {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Properties Panel */
+.properties-panel {
+    max-height: 400px;
+    margin-bottom: 20px;
+}
+
+.info-section {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: rgba(40, 40, 50, 0.5);
+    border-radius: 5px;
+}
+
+.info-label {
+    margin-bottom: 5px;
+    color: rgb(180, 180, 200);
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Bottom Panel */
+.bottom-panel {
+    height: 80px;
+    background-color: rgba(15, 15, 20, 0.9);
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    border-top-width: 2px;
+    border-top-color: rgba(80, 150, 255, 0.3);
+}
+
+.training-controls {
+    flex-direction: row;
+    align-items: center;
+}
+
+.primary-button {
+    height: 40px;
+    background-color: rgb(80, 180, 80);
+    border-width: 0;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    margin-right: 15px;
+    padding: 0 25px;
+    transition-duration: 0.2s;
+}
+
+.primary-button:hover {
+    background-color: rgb(100, 200, 100);
+    scale: 1.05;
+}
+
+.secondary-button {
+    height: 40px;
+    background-color: rgb(120, 120, 120);
+    border-width: 0;
+    border-radius: 8px;
+    color: white;
+    margin-right: 15px;
+    padding: 0 20px;
+    transition-duration: 0.2s;
+}
+
+.secondary-button:hover {
+    background-color: rgb(140, 140, 140);
+}
+
+.progress-section {
+    flex-direction: column;
+    align-items: flex-end;
+    min-width: 300px;
+}
+
+.progress-label {
+    color: rgb(200, 200, 220);
+    margin-bottom: 5px;
+}
+
+.training-progress-bar {
+    width: 300px;
+    height: 20px;
+    background-color: rgba(40, 40, 50, 0.8);
+    border-radius: 10px;
+}
+
+.training-stats {
+    margin-top: 5px;
+    font-size: 11px;
+    color: rgb(160, 160, 180);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Animation Classes */
+.fade-in {
+    transition-duration: 0.3s;
+    opacity: 1;
+}
+
+.fade-out {
+    transition-duration: 0.3s;
+    opacity: 0;
+}
+
+.scale-pulse {
+    transition-duration: 0.5s;
+    scale: 1.1;
+}
