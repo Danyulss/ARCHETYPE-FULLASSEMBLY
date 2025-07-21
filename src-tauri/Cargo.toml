@@ -3,7 +3,7 @@
 name = "archetype"
 version = "1.0.0"
 description = "Professional neural network design and training tool"
-authors = ["Archetype Development Team"]
+authors = ["Kai Cobbs, Daniel Gilliland"]
 license = "MIT"
 edition = "2021"
 
@@ -23,7 +23,7 @@ tauri-build = { version = "2.0", features = [] }
 
 [dependencies]
 # Tauri core dependencies
-tauri = { version = "2.0", features = [
+tauri = { version = "2.6.2", features = [
   "protocol-asset",
   "native-tls-vendored", 
   "devtools",
@@ -34,11 +34,11 @@ tauri = { version = "2.0", features = [
 tauri-plugin-fs = "2.0"
 tauri-plugin-dialog = "2.0"
 tauri-plugin-shell = "2.0"
-tauri-plugin-window = "2.0"
+# tauri-plugin-window = "2.0.0-alpha.2"
 tauri-plugin-process = "2.0"
 
 # HTTP server for Unity communication (NEW ADDITION)
-warp = "0.3"
+warp = "0.3" # { version = "0.3", optional = true }
 tokio = { version = "1.35", features = ["full"] }
 futures = "0.3"
 
@@ -75,8 +75,8 @@ walkdir = "2.4"
 config = "0.14"
 
 # Plugin system
-libloading = "0.8"
-dlopen2 = "0.7"
+libloading = {version = "0.8", optional = true }
+dlopen2 = { version = "0.7", optional = true }
 
 # HTTP client for ML backend communication
 reqwest = { version = "0.11", features = ["json", "stream"] }
@@ -92,7 +92,7 @@ windows = { version = "0.52", features = [
 
 [target.'cfg(target_os = "linux")'.dependencies]
 # Linux-specific GPU detection
-pciutils = { version = "0.2", optional = true }
+pciutils = { version = "0.1.1", optional = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 # macOS-specific system information
@@ -108,7 +108,7 @@ intel-support = []
 amd-support = []
 
 # Platform features
-headless = ["warp"]
+headless = []
 performance-profiling = []
 linux-gpu-detection = ["pciutils"]
 

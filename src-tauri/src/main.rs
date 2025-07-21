@@ -1,4 +1,11 @@
 use std::env;
+use std::sync::Arc;
+use anyhow::Result;
+use log::info;
+use warp::Filter;
+
+mod app_state; // Declare the app_state module
+use app_state::{AppState}; // Import necessary items
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -22,8 +29,8 @@ async fn main() -> Result<()> {
             .manage(app_state)
             .invoke_handler(tauri::generate_handler![
                 // ... existing command handlers
-            ])
-            .run(tauri::generate_context!())?;
+            ]);
+            //.run(tauri::generate_context!())?;
     }
     
     Ok(())
