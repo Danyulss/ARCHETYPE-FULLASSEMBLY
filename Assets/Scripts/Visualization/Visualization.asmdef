@@ -1,0 +1,16 @@
+{
+    "name": "Archetype.Visualization",
+    "rootNamespace": "Archetype.Visualization",
+    "references": [
+        "Archetype.Backend"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

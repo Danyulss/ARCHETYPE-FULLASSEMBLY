@@ -1,0 +1,17 @@
+{
+    "name": "Archetype.Backend",
+    "rootNamespace": "Archetype.Backend",
+    "references": [
+        "Unity.Nuget.Newtonsoft-Json",
+        "endel.nativewebsocket"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "ArchetypeNeuralBuilder.sln"
+    "dotnet.defaultSolution": "Archetype.sln"
 }

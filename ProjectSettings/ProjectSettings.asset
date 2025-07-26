@@ -4,7 +4,7 @@
 PlayerSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 28
-  productGUID: 17e8857ff13f2bf4f9b869626e3a3143
+  productGUID: 80bd5d50aa3a33d47a4774f9a12a10e8
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: DefaultCompany
-  productName: ArchetypeNeuralBuilder
+  productName: Archetype
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -837,14 +837,14 @@ PlayerSettings:
   editorAssembliesCompatibilityLevel: 1
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: ArchetypeNeuralBuilder
+  metroPackageName: Archetype
   metroPackageVersion: 
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
   metroCertificateIssuer: 
   metroCertificateNotAfter: 0000000000000000
-  metroApplicationDescription: ArchetypeNeuralBuilder
+  metroApplicationDescription: Archetype
   wsaImages: {}
   metroTileShortName: 
   metroTileShowName: 0
@@ -915,10 +915,10 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 2
   windowsGamepadBackendHint: 0
-  cloudProjectId: 94799c68-5e3f-4d5e-85f9-b61268fd79f6
+  cloudProjectId: 8d17da77-3085-4d59-991f-4146b3b4b8cf
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: ArchetypeNeuralBuilder
+  projectName: Archetype
   organizationId: danieljg0804
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
