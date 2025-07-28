@@ -263,7 +263,7 @@ namespace Archetype.Visualization
                 if (mainCamera != null)
                 {
                     var cameraController = mainCamera.GetComponent<Camera>();
-                    cameraController?.FocusOn(networkViz.transform.position);
+                    cameraController?.transform.LookAt(networkViz.transform.position);
                 }
             }
         }
@@ -281,6 +281,7 @@ namespace Archetype.Visualization
     [Serializable]
     public class VisualizationSettings
     {
+
         [Header("Node Settings")]
         public float nodeScale = 1.0f;
         public float nodeSpacing = 2.0f;
@@ -292,6 +293,7 @@ namespace Archetype.Visualization
         public bool showWeights = false;
         public bool colorByWeight = true;
         public float connectionAlpha = 0.7f;
+        public bool useLOD = true;
 
         [Header("Layer Settings")]
         public float layerSpacing = 5.0f;
@@ -311,6 +313,10 @@ namespace Archetype.Visualization
         public Color positiveWeightColor = Color.cyan;
         public Color negativeWeightColor = Color.magenta;
         public Color highlightColor = Color.yellow;
+
+        [Header("Materials")]
+        public Material nodeMaterial;
+        public Material connectionMaterial;
     }
 
     #endregion

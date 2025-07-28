@@ -4,8 +4,7 @@
     "references": [
         "Archetype.Backend",
         "Archetype.Visualization",
-        "Unity.Nuget.Newtonsoft-Json",
-        "UnityEngine.UI"
+        "Unity.Nuget.Newtonsoft-Json"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

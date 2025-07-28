@@ -299,15 +299,5 @@ namespace Archetype.Visualization
 
     #region Enums
 
-    public enum LayerType
-    {
-        Input,
-        Hidden,
-        Output,
-        Convolutional,
-        Recurrent,
-        Pooling
-    }
-
     #endregion
 }

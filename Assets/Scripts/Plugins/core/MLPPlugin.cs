@@ -142,7 +142,7 @@ namespace Archetype.Plugins.Core
             var go = new GameObject("NodeRenderer");
             if (parent != null) go.transform.SetParent(parent, false);
             
-            return go.AddComponent<NodeRenderer>();
+            return go.AddComponent<Archetype.Visualization.NodeVisualization>();
         }
 
         private MonoBehaviour CreateConnectionRenderer(Transform parent)
@@ -150,7 +150,7 @@ namespace Archetype.Plugins.Core
             var go = new GameObject("ConnectionRenderer");
             if (parent != null) go.transform.SetParent(parent, false);
             
-            return go.AddComponent<ConnectionRenderer>();
+            return go.AddComponent<Archetype.Visualization.ConnectionRenderer>();
         }
 
         #endregion
@@ -414,27 +414,7 @@ namespace Archetype.Plugins.Core
         }
     }
 
-    public class NodeRenderer : MonoBehaviour
-    {
-        public Material nodeMaterial;
-        public float nodeScale = 1.0f;
 
-        private void Start()
-        {
-            if (nodeMaterial != null)
-            {
-                GetComponent<Renderer>().material = nodeMaterial;
-            }
-            transform.localScale = Vector3.one * nodeScale;
-        }
-    }
-
-    public class ConnectionRenderer : MonoBehaviour
-    {
-        public Material connectionMaterial;
-        public float lineWidth = 0.05f;
-
-    }
 
     /// <summary>
     /// Individual neural node component

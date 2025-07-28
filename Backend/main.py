@@ -5,7 +5,7 @@ import argparse
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
@@ -179,6 +179,15 @@ async def global_exception_handler(request, exc):
             "type": type(exc).__name__
         }
     )
+
+# health check endpoint
+@app.get("/api/v1/health", status_code=status.HTTP_200_OK, tags=["Health Check"])
+async def health_check():
+    """
+    Performs a simple health check to ensure the API is running.
+    Returns a 200 OK status code if the service is healthy.
+    """
+    return {"status": "ok"}
 
 def main():
     """Main entry point"""
