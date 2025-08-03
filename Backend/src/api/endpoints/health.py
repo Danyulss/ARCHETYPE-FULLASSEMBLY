@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, HTTPException
 from pydantic import BaseModel
 import time
 import psutil
@@ -16,39 +16,75 @@ class HealthResponse(BaseModel):
     memory_usage_percent: float
     cpu_usage_percent: float
 
-class HTTPException(Exception):
-    def __init__(self, status_code: int, detail: str):
-        self.status_code = status_code
-        self.detail = detail
-
-startup_time = time.time()
-
-@router.post("/plugins/{plugin_id}/enable")
-async def enable_plugin(plugin_id: str, request: Request):
-    """Enable a plugin"""
-    plugin_manager = request.app.state.plugin_manager
-    
+@router.get("/health", response_model=HealthResponse)
+async def health_check(request: Request):
+    """Health check endpoint for Unity connection verification"""
     try:
-        await plugin_manager.enable_plugin(plugin_id)
-        return {"status": "enabled", "plugin_id": plugin_id}
+        current_time = time.time()
+        startup_time = getattr(request.app.state, 'startup_time', current_time)
+        uptime = current_time - startup_time
+        
+        # Get system metrics
+        memory_usage = psutil.virtual_memory().percent
+        cpu_usage = psutil.cpu_percent(interval=0.1)
+        
+        # GPU information
+        gpu_available = torch.cuda.is_available()
+        gpu_count = torch.cuda.device_count() if gpu_available else 0
+        
+        return HealthResponse(
+            status="healthy",
+            version="1.0.0",
+            uptime=uptime,
+            timestamp=time.strftime("%Y-%m-%d %H:%M:%S"),
+            gpu_available=gpu_available,
+            gpu_count=gpu_count,
+            memory_usage_percent=memory_usage,
+            cpu_usage_percent=cpu_usage
+        )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        # Return a minimal healthy response even if some metrics fail
+        return HealthResponse(
+            status="healthy",
+            version="1.0.0", 
+            uptime=0.0,
+            timestamp=time.strftime("%Y-%m-%d %H:%M:%S"),
+            gpu_available=False,
+            gpu_count=0,
+            memory_usage_percent=0.0,
+            cpu_usage_percent=0.0
+        )
 
-@router.post("/plugins/{plugin_id}/disable")
-async def disable_plugin(plugin_id: str, request: Request):
-    """Disable a plugin"""
-    plugin_manager = request.app.state.plugin_manager
-    
+@router.get("/health/detailed")
+async def detailed_health_check(request: Request):
+    """Detailed health check with component status"""
     try:
-        await plugin_manager.disable_plugin(plugin_id)
-        return {"status": "disabled", "plugin_id": plugin_id}
+        gpu_manager = getattr(request.app.state, 'gpu_manager', None)
+        model_factory = getattr(request.app.state, 'model_factory', None)
+        training_engine = getattr(request.app.state, 'training_engine', None)
+        plugin_manager = getattr(request.app.state, 'plugin_manager', None)
+        
+        return {
+            "status": "healthy",
+            "components": {
+                "gpu_manager": {
+                    "initialized": gpu_manager.is_initialized() if gpu_manager else False,
+                    "device": str(gpu_manager.device) if gpu_manager and gpu_manager.is_initialized() else None,
+                    "memory_allocated": torch.cuda.memory_allocated() if torch.cuda.is_available() else 0
+                },
+                "model_factory": {
+                    "initialized": model_factory.is_initialized() if model_factory else False,
+                    "active_models": len(model_factory.get_active_models()) if model_factory else 0
+                },
+                "training_engine": {
+                    "initialized": training_engine.is_initialized() if training_engine else False,
+                    "active_trainings": len(training_engine.get_active_trainings()) if training_engine else 0
+                },
+                "plugin_manager": {
+                    "loaded_plugins": len(plugin_manager.get_loaded_plugins()) if plugin_manager else 0,
+                    "core_plugins": len(plugin_manager.get_core_plugins()) if plugin_manager else 0
+                }
+            }
+        }
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-@router.get("/plugins/categories")
-async def get_plugin_categories(request: Request):
-    """Get available plugin categories"""
-    plugin_manager = request.app.state.plugin_manager
-    
-    categories = await plugin_manager.get_plugin_categories()
-    return {"categories": categories}
+        raise HTTPException(status_code=500, detail=f"Health check failed: {str(e)}")

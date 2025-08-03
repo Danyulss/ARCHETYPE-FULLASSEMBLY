@@ -134,3 +134,132 @@ async def detailed_health_check(request: Request):
             }
         }
     }
+
+router = APIRouter()
+
+class GPUPreferenceRequest(BaseModel):
+    preference: str
+
+class GPUDeviceSelection(BaseModel):
+    device_id: str
+
+class GPUPreference(BaseModel):
+    id: str
+    name: str
+    description: str
+    available: bool
+
+class GPUSettings(BaseModel):
+    current_device: Dict[str, Any]
+    available_devices: List[Dict[str, Any]]
+    available_preferences: List[GPUPreference]
+    current_preference: str
+
+@router.get("/gpu/settings", response_model=GPUSettings)
+async def get_gpu_settings(request: Request):
+    """Get current GPU settings and available options"""
+    gpu_manager = getattr(request.app.state, 'gpu_manager', None)
+    if not gpu_manager:
+        raise HTTPException(status_code=503, detail="GPU manager not initialized")
+    
+    try:
+        # Get current device info
+        current_device = {}
+        if gpu_manager.selected_device:
+            device = gpu_manager.selected_device
+            current_device = {
+                "id": device.device_id,
+                "name": device.name,
+                "vendor": device.vendor.value,
+                "type": device.device_type.value,
+                "memory_mb": device.total_memory_mb,
+                "performance_score": device.performance_score,
+                "is_discrete": device.is_discrete
+            }
+        
+        # Get all available devices
+        available_devices = gpu_manager.get_all_devices()
+        
+        # Get available preferences
+        available_preferences = [
+            GPUPreference(**pref) for pref in gpu_manager.get_available_preferences()
+        ]
+        
+        # Get current preference
+        current_preference = gpu_manager.get_current_preference()
+        
+        return GPUSettings(
+            current_device=current_device,
+            available_devices=available_devices,
+            available_preferences=available_preferences,
+            current_preference=current_preference
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get GPU settings: {str(e)}")
+
+@router.post("/gpu/preference")
+async def set_gpu_preference(request: Request, preference_request: GPUPreferenceRequest):
+    """Set GPU preference (auto, gpu_only, cpu_only, nvidia_only, amd_only, intel_only)"""
+    gpu_manager = getattr(request.app.state, 'gpu_manager', None)
+    if not gpu_manager:
+        raise HTTPException(status_code=503, detail="GPU manager not initialized")
+    
+    try:
+        await gpu_manager.set_gpu_preference(preference_request.preference)
+        
+        # Return updated settings
+        return {
+            "status": "success",
+            "preference": preference_request.preference,
+            "selected_device": gpu_manager.get_device_info(),
+            "pytorch_device": str(gpu_manager.get_device())
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/gpu/select-device")
+async def select_gpu_device(request: Request, device_selection: GPUDeviceSelection):
+    """Manually select a specific GPU device"""
+    gpu_manager = getattr(request.app.state, 'gpu_manager', None)
+    if not gpu_manager:
+        raise HTTPException(status_code=503, detail="GPU manager not initialized")
+    
+    try:
+        await gpu_manager.select_device(device_selection.device_id)
+        
+        return {
+            "status": "success",
+            "selected_device": gpu_manager.get_device_info(),
+            "pytorch_device": str(gpu_manager.get_device())
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/gpu/benchmark")
+async def run_gpu_benchmark(request: Request):
+    """Run GPU benchmark on current device"""
+    gpu_manager = getattr(request.app.state, 'gpu_manager', None)
+    if not gpu_manager:
+        raise HTTPException(status_code=503, detail="GPU manager not initialized")
+    
+    try:
+        benchmark_results = await gpu_manager.run_benchmark()
+        return benchmark_results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Benchmark failed: {str(e)}")
+
+@router.post("/gpu/optimize-for-model")
+async def optimize_for_model(request: Request, model_size_mb: int):
+    """Get optimization recommendations for a specific model size"""
+    gpu_manager = getattr(request.app.state, 'gpu_manager', None)
+    if not gpu_manager:
+        raise HTTPException(status_code=503, detail="GPU manager not initialized")
+    
+    try:
+        optimization = await gpu_manager.optimize_for_model_size(model_size_mb)
+        return optimization
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Optimization failed: {str(e)}")

@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
+from torch.utils.data import DataLoader, TensorDataset 
 import logging
 import asyncio
 import uuid
@@ -159,16 +159,16 @@ class TrainingEngine:
         weight_decay = config.get("weight_decay", 0.0)
         
         if optimizer_type == "adam":
-            return optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+            return optim.adam.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
         elif optimizer_type == "sgd":
             momentum = config.get("momentum", 0.9)
-            return optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum, weight_decay=weight_decay)
+            return optim.sgd.SGD(model.parameters(), lr=learning_rate, momentum=momentum, weight_decay=weight_decay)
         elif optimizer_type == "rmsprop":
-            return optim.RMSprop(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+            return optim.rmsprop.RMSprop(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
         elif optimizer_type == "adamw":
-            return optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+            return optim.adamw.AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
         else:
-            return optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+            return optim.adam.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
     
     def _create_criterion(self, config: Dict[str, Any]) -> nn.Module:
         """Create loss criterion based on configuration"""

@@ -241,7 +241,7 @@ class ModelFactory:
         elif format == "onnx":
             # Export to ONNX (requires example input)
             dummy_input = self._get_dummy_input(model_info)
-            torch.onnx.export(model, tuple(dummy_input), export_path)
+            torch.onnx.export(model, tuple(dummy_input), str(export_path))
         else:
             raise ValueError(f"Unsupported export format: {format}")
         
@@ -281,10 +281,10 @@ class ModelFactory:
             raise ValueError(f"Model {model_id} not found")
         return self.models[model_id]["model"]
     
-    def get_active_models(self) -> List[str]:
-        """Get list of active model IDs"""
-        return list(self.models.keys())
-    
     def is_initialized(self) -> bool:
         """Check if model factory is initialized"""
         return self.initialized
+    
+    def get_active_models(self) -> List[str]:
+        """Get list of active model IDs"""
+        return list(self.models.keys())

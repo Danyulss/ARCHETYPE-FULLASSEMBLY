@@ -60,3 +60,42 @@ async def unload_plugin(plugin_id: str, request: Request):
         return {"status": "unloaded", "plugin_id": plugin_id}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
+@router.post("/plugins/{plugin_id}/enable")
+async def enable_plugin(plugin_id: str, request: Request):
+    """Enable a plugin"""
+    plugin_manager = getattr(request.app.state, 'plugin_manager', None)
+    if not plugin_manager:
+        raise HTTPException(status_code=503, detail="Plugin manager not initialized")
+    
+    try:
+        await plugin_manager.enable_plugin(plugin_id)
+        return {"status": "enabled", "plugin_id": plugin_id}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/plugins/{plugin_id}/disable")
+async def disable_plugin(plugin_id: str, request: Request):
+    """Disable a plugin"""
+    plugin_manager = getattr(request.app.state, 'plugin_manager', None)
+    if not plugin_manager:
+        raise HTTPException(status_code=503, detail="Plugin manager not initialized")
+    
+    try:
+        await plugin_manager.disable_plugin(plugin_id)
+        return {"status": "disabled", "plugin_id": plugin_id}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/plugins/categories")
+async def get_plugin_categories(request: Request):
+    """Get available plugin categories"""
+    plugin_manager = getattr(request.app.state, 'plugin_manager', None)
+    if not plugin_manager:
+        raise HTTPException(status_code=503, detail="Plugin manager not initialized")
+    
+    try:
+        categories = await plugin_manager.get_plugin_categories()
+        return {"categories": categories}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

@@ -237,22 +237,6 @@ class PluginManager:
         return ResNetBlock() 
         RuntimeError(f"Failed to initialize plugin: {plugin_id}")
     
-    async def unload_plugin(self, plugin_id: str):
-        """Unload a plugin"""
-        if plugin_id in self.loaded_plugins:
-            await self.loaded_plugins[plugin_id].cleanup()
-            del self.loaded_plugins[plugin_id]
-            del self.plugin_manifests[plugin_id]
-            self.enabled_plugins.discard(plugin_id)
-            
-            logging.info(f"🔌 Unloaded plugin: {plugin_id}")
-    
-    async def enable_plugin(self, plugin_id: str):
-        """Enable a plugin"""
-        if plugin_id in self.loaded_plugins:
-            self.enabled_plugins.add(plugin_id)
-            logging.info(f"✅ Enabled plugin: {plugin_id}")
-    
     async def disable_plugin(self, plugin_id: str):
         """Disable a plugin"""
         if plugin_id in self.loaded_plugins:
@@ -325,11 +309,79 @@ class PluginManager:
     
     def get_core_plugins(self) -> List[str]:
         """Get list of core plugin IDs"""
-        return [pid for pid in self.loaded_plugins.keys() if pid.endswith("_core")]
+        return [pid for pid in self.loaded_plugins.keys() if pid.endswith('_core')]
     
     async def unload_all_plugins(self):
         """Unload all plugins"""
         for plugin_id in list(self.loaded_plugins.keys()):
             await self.unload_plugin(plugin_id)
+        logging.info("All plugins unloaded")
+    
+    async def unload_plugin(self, plugin_id: str):
+        """Unload specific plugin"""
+        if plugin_id in self.loaded_plugins:
+            plugin = self.loaded_plugins[plugin_id]
+            await plugin.cleanup()
+            del self.loaded_plugins[plugin_id]
+            self.enabled_plugins.discard(plugin_id)
+            logging.info(f"Unloaded plugin: {plugin_id}")
+    
+    async def enable_plugin(self, plugin_id: str):
+        """Enable plugin"""
+        if plugin_id in self.loaded_plugins:
+            self.enabled_plugins.add(plugin_id)
+            logging.info(f"Enabled plugin: {plugin_id}")
+        else:
+            raise ValueError(f"Plugin not loaded: {plugin_id}")
+    
+    async def load_plugin(self, plugin_id: str):
+        """Load plugin by ID"""
+        # Implementation for loading external plugins
+        logging.info(f"Loading plugin: {plugin_id}")
+        # Add actual plugin loading logic here
+    
+    # Fix the incomplete method from the search results
+    async def _load_plugin_from_file_complete(self, plugin_path: Path) -> str:
+        """Complete implementation for loading plugin from file"""
+        if not plugin_path.exists():
+            raise ValueError(f"Plugin file not found: {plugin_path}")
         
-        logging.info("🔌 All plugins unloaded")
+        # Load manifest
+        manifest_path = plugin_path / "manifest.json"
+        if not manifest_path.exists():
+            raise ValueError(f"Plugin manifest not found: {manifest_path}")
+        
+        with open(manifest_path, 'r') as f:
+            manifest = json.load(f)
+        
+        plugin_id = manifest["id"]
+        
+        # Load Python module
+        main_module = manifest.get("main_module", "plugin.py")
+        module_path = plugin_path / main_module
+        
+        if not module_path.exists():
+            raise ValueError(f"Plugin main module not found: {module_path}")
+        
+        # Import module dynamically
+        spec = importlib.util.spec_from_file_location(plugin_id, module_path)
+        if spec is not None and spec.loader is not None:
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            
+            # Get plugin class (assuming it's named 'Plugin')
+            plugin_class = getattr(module, 'Plugin', None)
+            if plugin_class:
+                plugin_instance = plugin_class()
+                if await plugin_instance.initialize():
+                    self.loaded_plugins[plugin_id] = plugin_instance
+                    self.plugin_manifests[plugin_id] = manifest
+                    self.enabled_plugins.add(plugin_id)
+                    logging.info(f"✅ Loaded plugin: {plugin_id}")
+                    return plugin_id
+                else:
+                    raise ValueError(f"Failed to initialize plugin: {plugin_id}")
+            else:
+                raise ValueError(f"Plugin class not found in: {plugin_id}")
+        else:
+            raise ValueError(f"Failed to load module spec for: {plugin_id}")

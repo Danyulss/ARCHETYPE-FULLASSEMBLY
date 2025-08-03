@@ -4,6 +4,7 @@ import logging
 import argparse
 from contextlib import asynccontextmanager
 from pathlib import Path
+import time
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,7 +13,7 @@ from fastapi.responses import JSONResponse
 
 # Import our modules
 from src.api.endpoints import health, models, training, plugins, gpu
-from src.core.gpu_manager import GPUManager
+from src.core.gpu_manager import UniversalGPUManager
 from src.core.model_factory import ModelFactory
 from src.core.training_engine import TrainingEngine
 from src.plugins.plugin_manager import PluginManager
@@ -21,7 +22,7 @@ from src.utils.logging_config import setup_logging
 from src.utils.websocket_manager import WebSocketManager
 
 # Global managers
-gpu_manager: GPUManager = GPUManager()
+gpu_manager: UniversalGPUManager = UniversalGPUManager()
 model_factory: ModelFactory = ModelFactory(gpu_manager=gpu_manager)
 training_engine: TrainingEngine = TrainingEngine(gpu_manager, model_factory)
 plugin_manager: PluginManager = PluginManager(plugin_directory = Path(__file__).parent / "src" / "plugins")
@@ -41,7 +42,7 @@ async def lifespan(app: FastAPI):
         settings = Settings()
         
         # Initialize GPU manager first
-        gpu_manager = GPUManager()
+        gpu_manager = UniversalGPUManager()
         await gpu_manager.initialize()
         logging.info(f"✅ GPU Manager initialized - {gpu_manager.get_device_info()}")
         
@@ -71,6 +72,7 @@ async def lifespan(app: FastAPI):
         app.state.plugin_manager = plugin_manager
         app.state.websocket_manager = websocket_manager
         app.state.settings = settings
+        app.state.startup_time = time.time()
         
         logging.info("🎉 Archetype Backend startup complete!")
         
@@ -179,15 +181,6 @@ async def global_exception_handler(request, exc):
             "type": type(exc).__name__
         }
     )
-
-# health check endpoint
-@app.get("/api/v1/health", status_code=status.HTTP_200_OK, tags=["Health Check"])
-async def health_check():
-    """
-    Performs a simple health check to ensure the API is running.
-    Returns a 200 OK status code if the service is healthy.
-    """
-    return {"status": "ok"}
 
 def main():
     """Main entry point"""
