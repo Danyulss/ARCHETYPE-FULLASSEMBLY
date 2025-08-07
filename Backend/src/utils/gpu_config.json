@@ -1,0 +1,31 @@
+{
+  "version": "1.0",
+  "user_preferences": {
+    "gpu_preference": "auto",
+    "preferred_device_id": null,
+    "benchmark_results": {},
+    "performance_settings": {
+      "enable_mixed_precision": true,
+      "memory_fraction": 0.8,
+      "auto_optimize": true
+    },
+    "ui_settings": {
+      "show_performance_overlay": true,
+      "benchmark_frequency": "weekly",
+      "notifications": {
+        "low_performance": true,
+        "device_changes": true,
+        "benchmark_complete": false
+      }
+    }
+  },
+  "device_history": [
+    {
+      "device_id": "cuda:0",
+      "name": "NVIDIA GeForce RTX 3070",
+      "last_used": "2025-01-15T10:30:00Z",
+      "average_performance": 1250.5,
+      "preferred": true
+    }
+  ]
+}

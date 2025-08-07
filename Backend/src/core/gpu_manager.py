@@ -6,9 +6,12 @@ import subprocess
 import psutil
 import time
 import os
+import _wmi
 from typing import Dict, List, Optional, Any, Union
 from dataclasses import dataclass
 from enum import Enum
+
+from src.core.temp_monitor import temp_check
 
 # Try importing additional GPU libraries
 try:
@@ -66,26 +69,26 @@ class GPUDevice:
     name: str
     vendor: VendorType
     device_type: DeviceType
-    compute_units: Optional[int]
+    compute_units: int
     total_memory_mb: int
     available_memory_mb: int
     memory_usage_percent: float
     temperature_c: Optional[float]
     power_usage_w: Optional[float]
-    driver_version: Optional[str]
+    driver_version: str
     compute_capability: Optional[str]
     performance_score: int  # 0-1000, higher = better
     is_discrete: bool
     supports_fp16: bool
     supports_int8: bool
-    max_work_group_size: Optional[int]
+    max_work_group_size: int
     
 class UniversalGPUManager:
     """Universal GPU manager supporting all major GPU vendors"""
     
     def __init__(self):
         self.devices: List[GPUDevice] = []
-        self.selected_device: GPUDevice
+        self.selected_device: Optional[GPUDevice] = None
         self.torch_device: Optional[torch.device] = None
         self.initialized = False
         self.opencl_context = None
@@ -171,7 +174,7 @@ class UniversalGPUManager:
             # Get additional NVIDIA info
             temp = nvidia_info.get(i, {}).get('temperature')
             power = nvidia_info.get(i, {}).get('power')
-            driver = nvidia_info.get(i, {}).get('driver')
+            driver = nvidia_info.get(i, {}).get('driver_version')
             
             device = GPUDevice(
                 device_id=f"cuda:{i}",
@@ -184,7 +187,7 @@ class UniversalGPUManager:
                 memory_usage_percent=usage_percent,
                 temperature_c=temp,
                 power_usage_w=power,
-                driver_version=driver,
+                driver_version=str(driver),
                 compute_capability=f"{props.major}.{props.minor}",
                 performance_score=self._calculate_cuda_performance_score(props),
                 is_discrete=True,  # CUDA devices are typically discrete
@@ -342,26 +345,27 @@ class UniversalGPUManager:
         cpu_threads = psutil.cpu_count(logical=True)
         total_ram = psutil.virtual_memory().total
         
-        cpu_device = GPUDevice(
-            device_id="cpu:0",
-            name=f"{cpu_info} ({cpu_cores}C/{cpu_threads}T)",
-            vendor=VendorType.UNKNOWN,
-            device_type=DeviceType.CPU,
-            compute_units=cpu_cores,
-            total_memory_mb=total_ram // (1024 * 1024),
-            available_memory_mb=psutil.virtual_memory().available // (1024 * 1024),
-            memory_usage_percent=psutil.virtual_memory().percent,
-            temperature_c=await self._get_cpu_temperature(),
-            power_usage_w=None,
-            driver_version="N/A",
-            compute_capability="CPU",
-            performance_score=100,  # Base CPU score
-            is_discrete=False,
-            supports_fp16=True,  # Modern CPUs support FP16
-            supports_int8=True,
-            max_work_group_size=cpu_threads
-        )
-        self.devices.append(cpu_device)
+        if cpu_cores is not None and cpu_threads is not None:
+            cpu_device = GPUDevice(
+                device_id="cpu:0",
+                name=f"{cpu_info} ({cpu_cores}C/{cpu_threads}T)",
+                vendor=VendorType.UNKNOWN,
+                device_type=DeviceType.CPU,
+                compute_units=cpu_cores,
+                total_memory_mb=total_ram // (1024 * 1024),
+                available_memory_mb=psutil.virtual_memory().available // (1024 * 1024),
+                memory_usage_percent=psutil.virtual_memory().percent,
+                temperature_c=await self._get_cpu_temperature(),
+                power_usage_w=None,
+                driver_version="N/A",
+                compute_capability="CPU",
+                performance_score=100,  # Base CPU score
+                is_discrete=False,
+                supports_fp16=True,  # Modern CPUs support FP16
+                supports_int8=True,
+                max_work_group_size=cpu_threads
+            )
+            self.devices.append(cpu_device)
     
     async def _auto_select_device(self):
         """Automatically select the best available device"""
@@ -580,23 +584,14 @@ class UniversalGPUManager:
         except Exception as e:
             logging.debug(f"AMD memory detection failed: {e}")
         
-        return None    
-
-    async def _get_cpu_temperature(self) -> Optional[float]:
-        """Get CPU temperature if available"""
-        '''
+        return None
+    
+    async def _get_cpu_temperature(self) -> Optional[float]:          
         try:
-            temps = psutil.sensors_temperatures()
-            if temps:
-                # Try to find CPU temperature
-                for name, entries in temps.items():
-                    if 'cpu' in name.lower() or 'core' in name.lower():
-                        if entries:
-                            return float(entries[0].current)
+            temp_check()
         except:
             pass
         return None
-        '''
 
     async def _initialize_opencl_context(self):
         """Initialize OpenCL context for custom kernels"""
@@ -605,21 +600,22 @@ class UniversalGPUManager:
         
         try:
             # Find the selected OpenCL device
-            if type(self.select_device) != None:
+            if self.selected_device is not None:
                 device_parts = self.selected_device.device_id.split(':')
-                platform_name = device_parts[1]
-                device_index = int(device_parts[2])
-                
-                platforms = cl.get_platforms()
-                for platform in platforms:
-                    if platform.name == platform_name:
-                        devices = platform.get_devices(device_type=cl.device_type.GPU)
-                        if device_index < len(devices):
-                            device = devices[device_index]
-                            self.opencl_context = cl.Context([device])
-                            self.opencl_queue = cl.CommandQueue(self.opencl_context)
-                            logging.info("✅ OpenCL context initialized")
-                            break
+
+            platform_name = device_parts[1]
+            device_index = int(device_parts[2])
+            
+            platforms = cl.get_platforms()
+            for platform in platforms:
+                if platform.name == platform_name:
+                    devices = platform.get_devices(device_type=cl.device_type.GPU)
+                    if device_index < len(devices):
+                        device = devices[device_index]
+                        self.opencl_context = cl.Context([device])
+                        self.opencl_queue = cl.CommandQueue(self.opencl_context)
+                        logging.info("✅ OpenCL context initialized")
+                        break
         except Exception as e:
             logging.warning(f"OpenCL context initialization failed: {e}")
     
