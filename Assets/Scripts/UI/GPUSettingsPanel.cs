@@ -20,7 +20,7 @@ namespace Archetype.UI
         public TMP_Text performanceText;
         public TMP_Text benchmarkResultText;
         public Image vendorColorIndicator;
-        public GameObject loadingIndicator;
+        //public GameObject loadingIndicator;
 
         [Header("Device List")]
         public Transform deviceListParent;
@@ -31,8 +31,18 @@ namespace Archetype.UI
         private void Start()
         {
             InitializeUI();
+            StartCoroutine(WaitForManagerAndSubscribe<GPUSettingsResponse>());
+        }
+
+        private IEnumerator<T> WaitForManagerAndSubscribe<T>()
+        {
+            // Wait until GPUSettingsManager is initialized
+            while (GPUSettingsManager.Instance == null)
+            {
+                yield return default(T);
+            }
             
-            // Subscribe to GPU settings events
+            // Now safely subscribe to events
             GPUSettingsManager.Instance.OnSettingsLoaded += OnSettingsLoaded;
             GPUSettingsManager.Instance.OnPreferenceChanged += OnPreferenceChanged;
             GPUSettingsManager.Instance.OnDeviceSelected += OnDeviceSelected;
@@ -57,7 +67,7 @@ namespace Archetype.UI
             benchmarkButton.onClick.AddListener(OnBenchmarkClicked);
 
             // Show loading initially
-            ShowLoading(true);
+            //ShowLoading(true);
         }
 
         private void OnSettingsLoaded(GPUSettingsResponse settings)
@@ -66,7 +76,7 @@ namespace Archetype.UI
             UpdateDeviceDropdown(settings.available_devices);
             UpdateCurrentDeviceInfo(settings.current_device);
             UpdateDeviceList(settings.available_devices);
-            ShowLoading(false);
+            //ShowLoading(false);
         }
 
         private void UpdatePreferenceDropdown(List<GPUPreference> preferences)
@@ -228,7 +238,7 @@ namespace Archetype.UI
             isUpdating = false;
         }
 
-        private void ShowLoading(bool show)
+        /* private void ShowLoading(bool show)
         {
             if (loadingIndicator != null)
             {
@@ -239,6 +249,11 @@ namespace Archetype.UI
             preferenceDropdown.interactable = !show;
             deviceDropdown.interactable = !show;
             benchmarkButton.interactable = !show;
+        } */
+
+        public void Show()
+        {
+            this.gameObject.SetActive(!this.gameObject.activeSelf);
         }
 
         private Color GetVendorColor(string vendor)

@@ -66,7 +66,31 @@ namespace Archetype.Backend
 
         private void Start()
         {
+            Debug.Log("🎮 GPUSettingsManager Start() called");
+            
+            if (BackendInterface.Instance == null)
+            {
+                Debug.LogError("❌ BackendInterface.Instance is null - retrying in 1 second");
+                StartCoroutine(RetryLoadSettings<UnityEngine.WaitForSeconds>());
+                return;
+            }
+            
             StartCoroutine(LoadGPUSettings());
+        }
+
+        private IEnumerator<UnityEngine.WaitForSeconds> RetryLoadSettings<T>()
+        {
+            yield return new WaitForSeconds(1f);
+            
+            if (BackendInterface.Instance != null)
+            {
+                Debug.Log("🔄 Retrying GPU settings load");
+                StartCoroutine(LoadGPUSettings());
+            }
+            else
+            {
+                Debug.LogError("❌ BackendInterface still not available");
+            }
         }
 
         public IEnumerator<System.Threading.Tasks.Task<GPUSettingsResponse>> LoadGPUSettings()
